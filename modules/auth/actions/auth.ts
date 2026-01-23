@@ -65,3 +65,30 @@ export const getCurrentUserRole = async () => {
     return null;
   }
 };
+
+export const getCurrentUserData = async () => {
+  try {
+    const user = await currentUser();
+    if (!user) {
+      return {
+        success: false,
+        error: "No Authenticated User Found",
+      };
+    }
+    const { id } = user;
+    const userData = await prisma.user.findFirst({
+      where: {
+        clerkId: id,
+      },
+    });
+    return {
+      success: true,
+      user: userData,
+    };
+  } catch (error) {
+    return {
+      success: false,
+      error: "Internal Server Error",
+    }
+  }
+}
