@@ -7,8 +7,8 @@ export const onBoardUser = async () => {
     const user = await currentUser();
 
     if (!user) {
-      console.log("No authenticated user found");
-      return { sucess: false, error: "No Authenticated User Found" };
+    //   console.log("No authenticated user found");
+      return { success: false, error: "No Authenticated User Found" };
     }
     const { id, firstName, lastName, emailAddresses, imageUrl } = user;
 
@@ -32,12 +32,36 @@ export const onBoardUser = async () => {
     });
 
     return {
-      sucess: true,
+      success: true,
       user: newUser,
-      message: "User Onboared Successfully!!!",
+      message: "User Onboarded Successfully!!!",
     };
   } catch (error) {
     console.error("Error onboarding user:", error);
-    return { sucess: false, message: "Internal Server Error" };
+    return { success: false, message: "Internal Server Error" };
+  }
+};
+
+export const getCurrentUserRole = async () => {
+  try {
+    const user = await currentUser();
+    if (!user) {
+      return null;
+    }
+
+    const { id } = user;
+    const userRole = await prisma.user.findFirst({
+      where: {
+        clerkId: id,
+      },
+      select: {
+        role: true,
+      },
+    });
+
+    return userRole?.role ?? null;
+  } catch (error) {
+    console.error("Error fetching user role:", error);
+    return null;
   }
 };

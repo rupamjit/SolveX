@@ -7,7 +7,7 @@ const page = async () => {
   
   return (
     <div>
-        <UserButton/>
+        {/* <UserButton/> */}
     </div>
   )
 }

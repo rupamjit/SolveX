@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono, Roboto } from "next/font/google";
 import "./globals.css";
 import { ClerkProvider } from "@clerk/nextjs";
+import NavBar from "@/components/home/NavBar";
 
 const roboto = Roboto({subsets:['latin'],variable:'--font-sans'});
 
