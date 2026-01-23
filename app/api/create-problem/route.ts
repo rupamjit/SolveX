@@ -120,12 +120,17 @@ export const POST = async (request: NextRequest) => {
       }
     }
 
+    // Transform tags from array of objects to array of strings
+    const formattedTags = Array.isArray(tags) 
+      ? tags.map((t: any) => typeof t === 'string' ? t : t.name).filter(Boolean)
+      : [];
+
     const newProblem = await prisma.problem.create({
       data: {
         title,
         description,
         difficulty,
-        tags,
+        tags: formattedTags,
         examples,
         constraints,
         testCases,

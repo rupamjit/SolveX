@@ -4,8 +4,7 @@ export function getJudge0LanguageId(language: string) {
     PYTHON: 71,
     JAVASCRIPT: 63,
     JAVA: 62,
-    CPP: 54,
-    GO: 60,
+
   };
   return languageMap[language.toUpperCase()];
 }
@@ -15,7 +14,6 @@ export function getLanguageName(languageId: number) {
     74: "TypeScript",
     63: "JavaScript",
     71: "Python",
-    62: "Java",
   };
   return LANGUAGE_NAMES[languageId] || "Unknown";
 }

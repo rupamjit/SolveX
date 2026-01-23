@@ -100,7 +100,7 @@ const NavBar = ({ userRole }: { userRole?: UserRole | null }) => {
         {/* Action Section */}
         <div className="flex items-center gap-3">
           <SignedIn>
-            {userRole === UserRole.USER && (
+            {userRole === UserRole.ADMIN && (
               <Link href="/create-problem" className="hidden sm:block">
                 <Button
                   size={isScrolled ? "sm" : "default"}
