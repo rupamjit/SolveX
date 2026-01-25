@@ -1,6 +1,6 @@
 "use client";
 
-import { getProblemById } from "@/modules/problems/actions/problem";
+import { getProblemById, executeCode } from "@/modules/problems/actions/problem";
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { Problem } from "@prisma/client";
@@ -9,18 +9,14 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import {
-  ChevronLeft,
-  ChevronRight,
   List,
   Play,
   CloudUpload,
-  Settings,
-  Maximize2,
-  MoreHorizontal,
   FileText,
   Beaker,
   CheckCircle2,
   Code2,
+  Clock,
 } from "lucide-react";
 import Editor from "@monaco-editor/react";
 import {
@@ -32,6 +28,10 @@ import {
 } from "@/components/ui/select";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { toast } from "sonner";
+import { getJudge0LanguageId } from "@/lib/judge0";
+import { SubmissionDetails } from "@/components/problem/SubmissionDetails";
+import { TestCaseTable } from "@/components/problem/TestCaseTable";
+import { SubmissionHistory } from "@/components/problem/SubmissionHistory";
 
 const Page = () => {
   const [problem, setProblem] = useState<Problem | null>(null);
@@ -42,6 +42,9 @@ const Page = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isRunning, setIsRunning] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  
+    const [submissionHistory, setSubmissionHistory] = useState<any[]>([]);
+  const [executionResponse, setExecutionResponse] = useState<any>(null);
 
   const params = useParams<{ id: string }>();
 
@@ -81,10 +84,50 @@ const Page = () => {
 
 
   const handleRun = async () => {
+    if (!problem) return;
+    
     setIsRunning(true);
+    setExecutionResponse(null);
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      toast.success("Run functionality coming soon!");
+      const language_id = getJudge0LanguageId(selectedLanguage);
+      const testCases = problem.testCases as { input: string; output: string }[];
+      const stdin = testCases.map((tc) => tc.input);
+      const expected_outputs = testCases.map((tc) => tc.output);
+      
+      const res = await executeCode({
+        id: problem.id,
+        source_code: code,
+        language_id,
+        stdin,
+        expected_outputs,
+      });
+      
+      if (res.success) {
+        toast.success("Code executed successfully");
+        setExecutionResponse(res);
+        setActiveTabRight("results"); 
+        
+        const submission = res.submission;
+        if (submission) {
+          setSubmissionHistory((prev) => [
+            {
+              id: submission.id || `run-${Date.now()}`,
+              status: submission.status,
+              language: submission.language || selectedLanguage,
+              memory: submission.memory,
+              time: submission.time,
+              createdAt: submission.createdAt || new Date().toISOString(),
+            },
+            ...prev,
+          ]);
+        }
+      } else {
+        console.error("Execution failed:", res);
+        toast.error(res.message || "Execution failed");
+      }
+    } catch (error) {
+      console.error("Error executing code:", error);
+      toast.error("Error executing code");
     } finally {
       setIsRunning(false);
     }
@@ -123,7 +166,6 @@ const Page = () => {
 
     if (!examples) return [];
 
-    // Handle both array format and single object format
     if (Array.isArray(examples)) return examples;
     if (typeof examples === "object" && examples !== null) return [examples];
     return [];
@@ -200,163 +242,183 @@ const Page = () => {
 
       <div className="flex-1 flex overflow-hidden">
         <div className="w-1/2 flex flex-col border-r bg-card/50">
-          <div className="h-10 border-b flex items-center px-2 bg-muted/20 gap-1">
-            <Button
-              variant="ghost"
-              size="sm"
-              className={cn(
-                "h-8 gap-2 text-xs font-medium rounded-t-md relative",
-                activeTabLeft === "description"
-                  ? "bg-background text-foreground shadow-sm"
-                  : "text-muted-foreground",
-              )}
-              onClick={() => setActiveTabLeft("description")}
-            >
-              <FileText className="h-3.5 w-3.5 text-blue-500" />
-              Description
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              className={cn(
-                "h-8 gap-2 text-xs font-medium",
-                activeTabLeft === "editorial"
-                  ? "bg-background text-foreground shadow-sm"
-                  : "text-muted-foreground",
-              )}
-              onClick={() => setActiveTabLeft("editorial")}
-            >
-              <Beaker className="h-3.5 w-3.5 text-orange-500" />
-              Editorial
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              className={cn(
-                "h-8 gap-2 text-xs font-medium",
-                activeTabLeft === "solutions"
-                  ? "bg-background text-foreground shadow-sm"
-                  : "text-muted-foreground",
-              )}
-              onClick={() => setActiveTabLeft("solutions")}
-            >
-              <Beaker className="h-3.5 w-3.5 text-purple-500" />
-              Solutions
-            </Button>
-          </div>
+          <div className="flex-1 flex flex-col min-h-0" style={{ height: '60%' }}>
+            <div className="h-10 border-b flex items-center px-2 bg-muted/20 gap-1">
+              <Button
+                variant="ghost"
+                size="sm"
+                className={cn(
+                  "h-8 gap-2 text-xs font-medium rounded-t-md relative",
+                  activeTabLeft === "description"
+                    ? "bg-background text-foreground shadow-sm"
+                    : "text-muted-foreground",
+                )}
+                onClick={() => setActiveTabLeft("description")}
+              >
+                <FileText className="h-3.5 w-3.5 text-blue-500" />
+                Description
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                className={cn(
+                  "h-8 gap-2 text-xs font-medium",
+                  activeTabLeft === "editorial"
+                    ? "bg-background text-foreground shadow-sm"
+                    : "text-muted-foreground",
+                )}
+                onClick={() => setActiveTabLeft("editorial")}
+              >
+                <Beaker className="h-3.5 w-3.5 text-orange-500" />
+                Editorial
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                className={cn(
+                  "h-8 gap-2 text-xs font-medium",
+                  activeTabLeft === "solutions"
+                    ? "bg-background text-foreground shadow-sm"
+                    : "text-muted-foreground",
+                )}
+                onClick={() => setActiveTabLeft("solutions")}
+              >
+                <Beaker className="h-3.5 w-3.5 text-purple-500" />
+                Solutions
+              </Button>
+            </div>
 
-          {/* Scrollable Content */}
-          <div className="flex-1 overflow-hidden relative">
-            {activeTabLeft === "description" && (
-              <ScrollArea className="h-full">
-                <div className="p-5 space-y-6 max-w-4xl mx-auto">
-                  {/* Title & Badges */}
-                  <div className="space-y-3">
-                    <h1 className="text-2xl font-bold tracking-tight">
-                      {problem.title}
-                    </h1>
-                    <div className="flex items-center gap-2">
-                      <Badge
-                        variant="secondary"
-                        className={cn(
-                          "rounded-md px-2 py-0.5 font-medium border-0",
-                          getDifficultyColor(problem.difficulty),
-                        )}
-                      >
-                        {problem.difficulty}
-                      </Badge>
-                      <Badge
-                        variant="outline"
-                        className="text-xs text-muted-foreground rounded-md border-transparent bg-muted/50 hover:bg-muted cursor-pointer transition-colors"
-                      >
-                        Topics
-                      </Badge>
-                      <Badge
-                        variant="outline"
-                        className="text-xs text-muted-foreground rounded-md border-transparent bg-muted/50 hover:bg-muted cursor-pointer transition-colors"
-                      >
-                        Companies
-                      </Badge>
+            {/* Scrollable Content */}
+            <div className="flex-1 overflow-hidden relative">
+              {activeTabLeft === "description" && (
+                <ScrollArea className="h-full">
+                  <div className="p-5 space-y-6 max-w-4xl mx-auto">
+                    {/* Title & Badges */}
+                    <div className="space-y-3">
+                      <h1 className="text-2xl font-bold tracking-tight">
+                        {problem.title}
+                      </h1>
+                      <div className="flex items-center gap-2">
+                        <Badge
+                          variant="secondary"
+                          className={cn(
+                            "rounded-md px-2 py-0.5 font-medium border-0",
+                            getDifficultyColor(problem.difficulty),
+                          )}
+                        >
+                          {problem.difficulty}
+                        </Badge>
+                        <Badge
+                          variant="outline"
+                          className="text-xs text-muted-foreground rounded-md border-transparent bg-muted/50 hover:bg-muted cursor-pointer transition-colors"
+                        >
+                          Topics
+                        </Badge>
+                        <Badge
+                          variant="outline"
+                          className="text-xs text-muted-foreground rounded-md border-transparent bg-muted/50 hover:bg-muted cursor-pointer transition-colors"
+                        >
+                          Companies
+                        </Badge>
+                      </div>
                     </div>
-                  </div>
 
-                  {/* Description Text */}
-                  <div className="prose dark:prose-invert max-w-none text-sm text-foreground/90 leading-relaxed font-normal">
-                    {problem.description}
-                  </div>
+                    {/* Description Text */}
+                    <div className="prose dark:prose-invert max-w-none text-sm text-foreground/90 leading-relaxed font-normal">
+                      {problem.description}
+                    </div>
 
-                  {/* Examples */}
-                  {displayExamples.length > 0 && (
-                    <div className="space-y-6">
-                      {displayExamples.map((example: any, index: number) => (
-                        <div key={index} className="space-y-3">
-                          <h3 className="font-semibold text-sm text-foreground">
-                            Example {index + 1}:
-                          </h3>
-                          <div className="space-y-2 pl-2">
-                            <div className="flex gap-2 text-sm">
-                              <span className="font-bold text-foreground">
-                                Input:
-                              </span>
-                              <code className="text-foreground font-mono text-sm whitespace-pre-wrap">
-                                {formatValue(
-                                  example.input || example.inputText,
-                                )}
-                              </code>
-                            </div>
-                            <div className="flex gap-2 text-sm">
-                              <span className="font-bold text-foreground">
-                                Output:
-                              </span>
-                              <code className="text-foreground font-mono text-sm whitespace-pre-wrap">
-                                {formatValue(
-                                  example.output || example.outputText,
-                                )}
-                              </code>
-                            </div>
-                            {example.explanation && (
+                    {/* Examples */}
+                    {displayExamples.length > 0 && (
+                      <div className="space-y-6">
+                        {displayExamples.map((example: any, index: number) => (
+                          <div key={index} className="space-y-3">
+                            <h3 className="font-semibold text-sm text-foreground">
+                              Example {index + 1}:
+                            </h3>
+                            <div className="space-y-2 pl-2">
                               <div className="flex gap-2 text-sm">
                                 <span className="font-bold text-foreground">
-                                  Explanation:
+                                  Input:
                                 </span>
-                                <span className="text-muted-foreground text-sm">
-                                  {example.explanation}
-                                </span>
+                                <code className="text-foreground font-mono text-sm whitespace-pre-wrap">
+                                  {formatValue(
+                                    example.input || example.inputText,
+                                  )}
+                                </code>
                               </div>
-                            )}
+                              <div className="flex gap-2 text-sm">
+                                <span className="font-bold text-foreground">
+                                  Output:
+                                </span>
+                                <code className="text-foreground font-mono text-sm whitespace-pre-wrap">
+                                  {formatValue(
+                                    example.output || example.outputText,
+                                  )}
+                                </code>
+                              </div>
+                              {example.explanation && (
+                                <div className="flex gap-2 text-sm">
+                                  <span className="font-bold text-foreground">
+                                    Explanation:
+                                  </span>
+                                  <span className="text-muted-foreground text-sm">
+                                    {example.explanation}
+                                  </span>
+                                </div>
+                              )}
+                            </div>
                           </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
+                        ))}
+                      </div>
+                    )}
 
-                  {/* Constraints */}
-                  {problem.constraints && (
-                    <div className="space-y-3 pt-4">
-                      <h3 className="font-semibold text-sm">Constraints:</h3>
-                      <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground font-mono">
-                        {problem.constraints
-                          .split("\n")
-                          .map((constraint, i) => (
-                            <li key={i}>{constraint}</li>
-                          ))}
-                      </ul>
-                    </div>
-                  )}
+                    {/* Constraints */}
+                    {problem.constraints && (
+                      <div className="space-y-3 pt-4">
+                        <h3 className="font-semibold text-sm">Constraints:</h3>
+                        <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground font-mono">
+                          {problem.constraints
+                            .split("\n")
+                            .map((constraint, i) => (
+                              <li key={i}>{constraint}</li>
+                            ))}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
+                </ScrollArea>
+              )}
+
+              {activeTabLeft === "editorial" && (
+                <div className="flex items-center justify-center h-full text-muted-foreground text-sm">
+                  Editorial content not available.
                 </div>
-              </ScrollArea>
-            )}
+              )}
+              {activeTabLeft === "solutions" && (
+                <div className="flex items-center justify-center h-full text-muted-foreground text-sm">
+                  Solutions not available.
+                </div>
+              )}
+            </div>
+          </div>
 
-            {activeTabLeft === "editorial" && (
-              <div className="flex items-center justify-center h-full text-muted-foreground text-sm">
-                Editorial content not available.
+          {/* Divider */}
+          <div className="h-1 bg-border hover:bg-primary/50 cursor-row-resize transition-colors" />
+
+          {/* Bottom Section - Submission History */}
+          <div className="flex flex-col min-h-0" style={{ height: '40%' }}>
+            <div className="h-10 border-b flex items-center px-3 bg-muted/20">
+              <div className="flex items-center gap-2 text-sm font-medium">
+                <Clock className="h-4 w-4 text-amber-500" />
+                Submission History
               </div>
-            )}
-            {activeTabLeft === "solutions" && (
-              <div className="flex items-center justify-center h-full text-muted-foreground text-sm">
-                Solutions not available.
-              </div>
-            )}
+            </div>
+            <div className="flex-1 overflow-hidden">
+              <ScrollArea className="h-full p-3">
+                <SubmissionHistory submissions={submissionHistory} />
+              </ScrollArea>
+            </div>
           </div>
         </div>
 
@@ -393,6 +455,22 @@ const Page = () => {
                 <CheckCircle2 className="h-3.5 w-3.5 text-muted-foreground" />
                 Testcase
               </Button>
+              {executionResponse && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className={cn(
+                    "h-8 gap-2 text-xs font-medium",
+                    activeTabRight === "results"
+                      ? "bg-background text-foreground shadow-sm"
+                      : "text-muted-foreground",
+                  )}
+                  onClick={() => setActiveTabRight("results")}
+                >
+                  <Play className="h-3.5 w-3.5 text-amber-500" />
+                  Results
+                </Button>
+              )}
             </div>
             <div className="flex items-center gap-2">
               <Select
@@ -413,9 +491,9 @@ const Page = () => {
             </div>
           </div>
 
-          {/*  Editor*/}
+          {/*  Editor */}
           <div className="flex-1 overflow-hidden relative border-l">
-            {activeTabRight === "code" ? (
+            {activeTabRight === "code" && (
               <Editor
                 height="100%"
                 language={
@@ -437,7 +515,9 @@ const Page = () => {
                   padding: { top: 10 },
                 }}
               />
-            ) : (
+            )}
+            
+            {activeTabRight === "testcase" && (
               <ScrollArea className="h-full p-4">
                 <div className="space-y-4">
                   {problem.testCases && Array.isArray(problem.testCases) ? (
@@ -470,6 +550,19 @@ const Page = () => {
                     <div className="text-sm text-muted-foreground">
                       No test cases available.
                     </div>
+                  )}
+                </div>
+              </ScrollArea>
+            )}
+
+            {activeTabRight === "results" && executionResponse && (
+              <ScrollArea className="h-full p-4">
+                <div className="space-y-4">
+                  {executionResponse.submission && (
+                    <>
+                      <SubmissionDetails submission={executionResponse.submission} />
+                      <TestCaseTable testCases={executionResponse.submission.testCases} />
+                    </>
                   )}
                 </div>
               </ScrollArea>

@@ -25,6 +25,18 @@ type SubmissionType = {
   expected_output: string;
 };
 
+export type Judge0Result = {
+  stdout: string | null;
+  stderr: string | null;
+  compile_output: string | null;
+  status: {
+    id: number;
+    description: string;
+  };
+  memory: number | null;
+  time: string | null;
+};
+
 export const submitBatch = async (submissions: SubmissionType[]): Promise<{ token: string }[]> => {
   const { data } = await axios.post(
     `https://judge0-ce.p.rapidapi.com/submissions/batch?base64_encoded=false`,
@@ -41,7 +53,7 @@ export const submitBatch = async (submissions: SubmissionType[]): Promise<{ toke
   return data;
 };
 
-export const pollBatchResults = async (tokens: string[]): Promise<any> => {
+export const pollBatchResults = async (tokens: string[]): Promise<Judge0Result[]> => {
   // Helper to wait
   const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
