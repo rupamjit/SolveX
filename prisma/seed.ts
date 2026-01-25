@@ -161,19 +161,139 @@ const problems = [
       { input: "4", output: "5" }
     ],
     examples: {
-      JAVASCRIPT: { input: "n = 2", output: "2", explanation: "1. 1 + 1\n2. 2" },
-      PYTHON: { input: "n = 3", output: "3", explanation: "1. 1+1+1\n2. 1+2\n3. 2+1" },
-      JAVA: { input: "n = 4", output: "5", explanation: "Five ways to climb." }
+      JAVASCRIPT: { input: "n = 2", output: "2", explanation: "There are two ways to climb to the top:\n1. 1 step + 1 step\n2. 2 steps" },
+      PYTHON: { input: "n = 3", output: "3", explanation: "There are three ways to climb to the top:\n1. 1 step + 1 step + 1 step\n2. 1 step + 2 steps\n3. 2 steps + 1 step" },
+      JAVA: { input: "n = 4", output: "5", explanation: "There are five ways to climb to the top." }
     },
     codeSnippets: {
-      JAVASCRIPT: "function climbStairs(n) {\n  \n}",
-      PYTHON: "class Solution:\n    def climbStairs(self, n: int) -> int:\n        pass",
-      JAVA: "class Solution {\n    public int climbStairs(int n) {\n        \n    }\n}"
+      JAVASCRIPT: `/**
+ * @param {number} n
+ * @return {number}
+ */
+function climbStairs(n) {
+  // Write your code here
+}
+
+// Parse input and execute
+const readline = require('readline');
+const rl = readline.createInterface({
+  input: process.stdin,
+  output: process.stdout,
+  terminal: false
+});
+
+rl.on('line', (line) => {
+  const n = parseInt(line.trim());
+  const result = climbStairs(n);
+  console.log(result);
+  rl.close();
+});`,
+      PYTHON: `class Solution:
+    def climbStairs(self, n: int) -> int:
+        # Write your code here
+        pass
+
+if __name__ == "__main__":
+    import sys
+    line = sys.stdin.readline()
+    if line:
+        n = int(line.strip())
+        sol = Solution()
+        print(sol.climbStairs(n))`,
+      JAVA: `import java.util.Scanner;
+
+public class Main {
+    public int climbStairs(int n) {
+        // Write your code here
+        return 0;
+    }
+    
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        if (scanner.hasNextLine()) {
+            int n = Integer.parseInt(scanner.nextLine().trim());
+            Main sol = new Main();
+            System.out.println(sol.climbStairs(n));
+        }
+        scanner.close();
+    }
+}`
     },
     referenceSolutions: {
-      JAVASCRIPT: "function climbStairs(n) {\n  if (n <= 2) return n;\n  let a = 1, b = 2;\n  for (let i = 3; i <= n; i++) {\n    let temp = a + b;\n    a = b;\n    b = temp;\n  }\n  return b;\n}",
-      PYTHON: "class Solution:\n    def climbStairs(self, n: int) -> int:\n        one, two = 1, 1\n        for i in range(n - 1):\n            temp = one\n            one = one + two\n            two = temp\n        return one",
-      JAVA: "class Solution {\n    public int climbStairs(int n) {\n        if (n == 1) return 1;\n        int first = 1;\n        int second = 2;\n        for (int i = 3; i <= n; i++) {\n            int third = first + second;\n            first = second;\n            second = third;\n        }\n        return second;\n    }\n}"
+      JAVASCRIPT: `/**
+ * @param {number} n
+ * @return {number}
+ */
+function climbStairs(n) {
+  if (n <= 2) return n;
+  let dp = new Array(n + 1);
+  dp[1] = 1;
+  dp[2] = 2;
+  for (let i = 3; i <= n; i++) {
+    dp[i] = dp[i - 1] + dp[i - 2];
+  }
+  return dp[n];
+}
+
+const readline = require('readline');
+const rl = readline.createInterface({
+  input: process.stdin,
+  output: process.stdout,
+  terminal: false
+});
+
+rl.on('line', (line) => {
+  if (line.trim()) {
+    const n = parseInt(line.trim());
+    console.log(climbStairs(n));
+  }
+  rl.close();
+});`,
+      PYTHON: `class Solution:
+    def climbStairs(self, n: int) -> int:
+        if n <= 2:
+            return n
+        dp = [0] * (n + 1)
+        dp[1] = 1
+        dp[2] = 2
+        for i in range(3, n + 1):
+            dp[i] = dp[i - 1] + dp[i - 2]
+        return dp[n]
+
+if __name__ == "__main__":
+    import sys
+    line = sys.stdin.readline()
+    if line:
+        n = int(line.strip())
+        sol = Solution()
+        print(sol.climbStairs(n))`,
+      JAVA: `import java.util.Scanner;
+
+public class Main {
+    public int climbStairs(int n) {
+        if (n <= 2) return n;
+        int[] dp = new int[n + 1];
+        dp[1] = 1;
+        dp[2] = 2;
+        for (int i = 3; i <= n; i++) {
+            dp[i] = dp[i - 1] + dp[i - 2];
+        }
+        return dp[n];
+    }
+    
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        if (scanner.hasNextLine()) {
+            String line = scanner.nextLine().trim();
+            if (!line.isEmpty()) {
+                int n = Integer.parseInt(line);
+                Main sol = new Main();
+                System.out.println(sol.climbStairs(n));
+            }
+        }
+        scanner.close();
+    }
+}`
     }
   },
   {
@@ -468,23 +588,322 @@ const problems = [
     hints: "Backtracking.",
     editorial: "Keep track of open and close brackets count. Add open if open < n. Add close if close < open.",
     testCases: [
-      { input: "3", output: "[\"((()))\",\"(()())\",\"(())()\",\"()(())\",\"()()()\"]" },
-      { input: "1", output: "[\"()\"]" }
+      { input: "3", output: '["((()))","(()())","(())()","()(())","()()()"]' },
+      { input: "1", output: '["()"]' }
     ],
     examples: {
-      JAVASCRIPT: { input: "n = 3", output: "[\"((()))\",\"(()())\",\"(())()\",\"()(())\",\"()()()\"]", explanation: "" },
-      PYTHON: { input: "n = 3", output: "[\"((()))\",\"(()())\",\"(())()\",\"()(())\",\"()()()\"]", explanation: "" },
-      JAVA: { input: "n = 3", output: "[\"((()))\",\"(()())\",\"(())()\",\"()(())\",\"()()()\"]", explanation: "" }
+      JAVASCRIPT: { input: "n = 3", output: '["((()))","(()())","(())()","()(())","()()()"]', explanation: "" },
+      PYTHON: { input: "n = 3", output: '["((()))","(()())","(())()","()(())","()()()"]', explanation: "" },
+      JAVA: { input: "n = 3", output: '["((()))","(()())","(())()","()(())","()()()"]', explanation: "" }
     },
     codeSnippets: {
-      JAVASCRIPT: "function generateParenthesis(n) {\n  \n}",
-      PYTHON: "class Solution:\n    def generateParenthesis(self, n: int) -> List[str]:\n        pass",
-      JAVA: "class Solution {\n    public List<String> generateParenthesis(int n) {\n        \n    }\n}"
+      JAVASCRIPT: `/**
+ * @param {number} n
+ * @return {string[]}
+ */
+function generateParenthesis(n) {
+  // Write your code here
+}
+
+// Parse input and execute
+const readline = require('readline');
+const rl = readline.createInterface({
+  input: process.stdin,
+  output: process.stdout,
+  terminal: false
+});
+
+rl.on('line', (line) => {
+  const n = parseInt(line.trim());
+  const result = generateParenthesis(n);
+  console.log(JSON.stringify(result));
+  rl.close();
+});`,
+      PYTHON: `from typing import List
+
+class Solution:
+    def generateParenthesis(self, n: int) -> List[str]:
+        # Write your code here
+        pass
+
+if __name__ == "__main__":
+    import sys
+    import json
+    line = sys.stdin.readline()
+    if line:
+        n = int(line.strip())
+        sol = Solution()
+        result = sol.generateParenthesis(n)
+        print(json.dumps(result))`,
+      JAVA: `import java.util.*;
+
+public class Main {
+    public List<String> generateParenthesis(int n) {
+        // Write your code here
+        return new ArrayList<>();
+    }
+
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        if (sc.hasNextLine()) {
+            int n = Integer.parseInt(sc.nextLine().trim());
+            Main sol = new Main();
+            List<String> result = sol.generateParenthesis(n);
+            // Format as JSON array
+            StringBuilder sb = new StringBuilder("[");
+            for (int i = 0; i < result.size(); i++) {
+                sb.append("\\"").append(result.get(i)).append("\\"");
+                if (i < result.size() - 1) sb.append(",");
+            }
+            sb.append("]");
+            System.out.println(sb.toString());
+        }
+        sc.close();
+    }
+}`
     },
     referenceSolutions: {
-      JAVASCRIPT: "function generateParenthesis(n) {\n  const res = [];\n  const backtrack = (s, open, close) => {\n    if (s.length === 2 * n) {\n      res.push(s);\n      return;\n    }\n    if (open < n) backtrack(s + '(', open + 1, close);\n    if (close < open) backtrack(s + ')', open, close + 1);\n  };\n  backtrack('', 0, 0);\n  return res;\n}",
-      PYTHON: "class Solution:\n    def generateParenthesis(self, n: int) -> List[str]:\n        stack = []\n        res = []\n        def backtrack(openN, closedN):\n            if openN == closedN == n:\n                res.append(\"\".join(stack))\n                return\n            if openN < n:\n                stack.append(\"(\")\n                backtrack(openN + 1, closedN)\n                stack.pop()\n            if closedN < openN:\n                stack.append(\")\")\n                backtrack(openN, closedN + 1)\n                stack.pop()\n        backtrack(0, 0)\n        return res",
-      JAVA: "class Solution {\n    public List<String> generateParenthesis(int n) {\n        List<String> list = new ArrayList<String>();\n        backtrack(list, \"\", 0, 0, n);\n        return list;\n    }\n    public void backtrack(List<String> list, String str, int open, int close, int max){\n        if(str.length() == max*2){\n            list.add(str);\n            return;\n        }\n        if(open < max)\n            backtrack(list, str+\"(\", open+1, close, max);\n        if(close < open)\n            backtrack(list, str+\")\", open, close+1, max);\n    }\n}"
+      JAVASCRIPT: `/**
+ * @param {number} n
+ * @return {string[]}
+ */
+function generateParenthesis(n) {
+  const result = [];
+  
+  function backtrack(current, open, close) {
+    if (current.length === 2 * n) {
+      result.push(current);
+      return;
+    }
+    if (open < n) {
+      backtrack(current + "(", open + 1, close);
+    }
+    if (close < open) {
+      backtrack(current + ")", open, close + 1);
+    }
+  }
+  
+  backtrack("", 0, 0);
+  return result;
+}
+
+const readline = require('readline');
+const rl = readline.createInterface({
+  input: process.stdin,
+  output: process.stdout,
+  terminal: false
+});
+
+rl.on('line', (line) => {
+  const n = parseInt(line.trim());
+  const result = generateParenthesis(n);
+  console.log(JSON.stringify(result));
+  rl.close();
+});`,
+      PYTHON: `from typing import List
+import json
+
+class Solution:
+    def generateParenthesis(self, n: int) -> List[str]:
+        result = []
+        
+        def backtrack(current, open_count, close_count):
+            if len(current) == 2 * n:
+                result.append(current)
+                return
+            if open_count < n:
+                backtrack(current + "(", open_count + 1, close_count)
+            if close_count < open_count:
+                backtrack(current + ")", open_count, close_count + 1)
+        
+        backtrack("", 0, 0)
+        return result
+
+if __name__ == "__main__":
+    import sys
+    line = sys.stdin.readline()
+    if line:
+        n = int(line.strip())
+        sol = Solution()
+        result = sol.generateParenthesis(n)
+        print(json.dumps(result))`,
+      JAVA: `import java.util.*;
+
+public class Main {
+    public List<String> generateParenthesis(int n) {
+        List<String> result = new ArrayList<>();
+        backtrack(result, "", 0, 0, n);
+        return result;
+    }
+    
+    private void backtrack(List<String> list, String str, int open, int close, int max) {
+        if (str.length() == max * 2) {
+            list.add(str);
+            return;
+        }
+        if (open < max) {
+            backtrack(list, str + "(", open + 1, close, max);
+        }
+        if (close < open) {
+            backtrack(list, str + ")", open, close + 1, max);
+        }
+    }
+
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        if (sc.hasNextLine()) {
+            int n = Integer.parseInt(sc.nextLine().trim());
+            Main sol = new Main();
+            List<String> result = sol.generateParenthesis(n);
+            StringBuilder sb = new StringBuilder("[");
+            for (int i = 0; i < result.size(); i++) {
+                sb.append("\\"").append(result.get(i)).append("\\"");
+                if (i < result.size() - 1) sb.append(",");
+            }
+            sb.append("]");
+            System.out.println(sb.toString());
+        }
+        sc.close();
+    }
+}`
+    }
+  },
+  {
+    title: "Valid Palindrome",
+    description: "A phrase is a palindrome if, after converting all uppercase letters into lowercase letters and removing all non-alphanumeric characters, it reads the same forward and backward. Alphanumeric characters include letters and numbers. Given a string s, return true if it is a palindrome, or false otherwise.",
+    difficulty: Difficulty.EASY,
+    tags: [{ name: "String" }, { name: "Two Pointers" }],
+    constraints: "1 <= s.length <= 2 * 10^5\ns consists only of printable ASCII characters.",
+    hints: "Consider using two pointers, one from the start and one from the end, moving towards the center.",
+    editorial: "We can use two pointers approach to check if the string is a palindrome. One pointer starts from the beginning and the other from the end, moving towards each other.",
+    testCases: [
+      { input: "A man, a plan, a canal: Panama", output: "true" },
+      { input: "race a car", output: "false" },
+      { input: " ", output: "true" }
+    ],
+    examples: {
+      JAVASCRIPT: { input: 's = "A man, a plan, a canal: Panama"', output: "true", explanation: '"amanaplanacanalpanama" is a palindrome.' },
+      PYTHON: { input: 's = "A man, a plan, a canal: Panama"', output: "true", explanation: '"amanaplanacanalpanama" is a palindrome.' },
+      JAVA: { input: 's = "A man, a plan, a canal: Panama"', output: "true", explanation: '"amanaplanacanalpanama" is a palindrome.' }
+    },
+    codeSnippets: {
+      JAVASCRIPT: `/**
+ * @param {string} s
+ * @return {boolean}
+ */
+function isPalindrome(s) {
+  // Write your code here
+}
+
+const readline = require('readline');
+const rl = readline.createInterface({
+  input: process.stdin,
+  output: process.stdout,
+  terminal: false
+});
+
+rl.on('line', (line) => {
+  const result = isPalindrome(line);
+  console.log(result ? "true" : "false");
+  rl.close();
+});`,
+      PYTHON: `class Solution:
+    def isPalindrome(self, s: str) -> bool:
+        # Write your code here
+        pass
+
+if __name__ == "__main__":
+    import sys
+    s = sys.stdin.readline().strip()
+    sol = Solution()
+    result = sol.isPalindrome(s)
+    print(str(result).lower())`,
+      JAVA: `import java.util.Scanner;
+
+public class Main {
+    public boolean isPalindrome(String s) {
+        // Write your code here
+        return false;
+    }
+
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        if (sc.hasNextLine()) {
+            String input = sc.nextLine();
+            Main sol = new Main();
+            System.out.println(sol.isPalindrome(input) ? "true" : "false");
+        }
+        sc.close();
+    }
+}`
+    },
+    referenceSolutions: {
+      JAVASCRIPT: `/**
+ * @param {string} s
+ * @return {boolean}
+ */
+function isPalindrome(s) {
+  s = s.toLowerCase().replace(/[^a-z0-9]/g, '');
+  let left = 0;
+  let right = s.length - 1;
+  while (left < right) {
+    if (s[left] !== s[right]) {
+      return false;
+    }
+    left++;
+    right--;
+  }
+  return true;
+}
+
+const readline = require('readline');
+const rl = readline.createInterface({
+  input: process.stdin,
+  output: process.stdout,
+  terminal: false
+});
+
+rl.on('line', (line) => {
+  const result = isPalindrome(line);
+  console.log(result ? "true" : "false");
+  rl.close();
+});`,
+      PYTHON: `class Solution:
+    def isPalindrome(self, s: str) -> bool:
+        filtered_chars = [c.lower() for c in s if c.isalnum()]
+        return filtered_chars == filtered_chars[::-1]
+
+if __name__ == "__main__":
+    import sys
+    line = sys.stdin.readline()
+    if line:
+        s = line.strip()
+        sol = Solution()
+        print(str(sol.isPalindrome(s)).lower())`,
+      JAVA: `import java.util.Scanner;
+
+public class Main {
+    public boolean isPalindrome(String s) {
+        s = s.replaceAll("[^a-zA-Z0-9]", "").toLowerCase();
+        int left = 0, right = s.length() - 1;
+        while (left < right) {
+            if (s.charAt(left) != s.charAt(right)) return false;
+            left++;
+            right--;
+        }
+        return true;
+    }
+
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        if (sc.hasNextLine()) {
+            String input = sc.nextLine();
+            Main sol = new Main();
+            System.out.println(sol.isPalindrome(input) ? "true" : "false");
+        }
+        sc.close();
+    }
+}`
     }
   },
 ];
