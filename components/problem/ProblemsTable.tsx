@@ -80,7 +80,7 @@ const ProblemsTable = ({ problems, user }: ProblemsTableProps) => {
     return filteredProblems.slice(starIndex, starIndex + itemsPerPage);
   }, [filteredProblems, currentPage, itemsPerPage]);
 
-  const getDifficultyColor = (diff: string) => {
+   const getDifficultyColor = (diff: string) => {
     switch (diff) {
       case "EASY":
         return "bg-emerald-50 text-emerald-700 border-emerald-200";
