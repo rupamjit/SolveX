@@ -1,6 +1,10 @@
 "use client";
 
-import { getProblemById, executeCode } from "@/modules/problems/actions/problem";
+import {
+  getProblemById,
+  executeCode,
+  getUserProblemData,
+} from "@/modules/problems/actions/problem";
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { Problem } from "@prisma/client";
@@ -42,8 +46,8 @@ const Page = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isRunning, setIsRunning] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  
-    const [submissionHistory, setSubmissionHistory] = useState<any[]>([]);
+
+  const [submissionHistory, setSubmissionHistory] = useState<any[]>([]);
   const [executionResponse, setExecutionResponse] = useState<any>(null);
 
   const params = useParams<{ id: string }>();
@@ -54,9 +58,37 @@ const Page = () => {
       try {
         if (params.id) {
           setIsLoading(true);
+          // Fetch problem details
           const response = await getProblemById(params.id);
           if (response.success && response.data) {
             setProblem(response.data);
+          }
+
+          // Fetch user specific data (history/submissions)
+          const userData = await getUserProblemData(params.id);
+          if (userData.success) {
+            if (userData.submissions) {
+              setSubmissionHistory(
+                userData.submissions.map((s: any) => ({
+                  id: s.id,
+                  status: s.status,
+                  language: s.language,
+                  memory: s.memory,
+                  time: s.time,
+                  createdAt: s.createdAt,
+                })),
+              );
+            }
+
+            // Overwrite code if there's an accepted solution
+            if (userData.lastAcceptedCode) {
+              setCode(userData.lastAcceptedCode as string);
+              if (userData.lastAcceptedLanguage) {
+                setSelectedLanguage(
+                  userData.lastAcceptedLanguage.toLowerCase(),
+                );
+              }
+            }
           }
         }
       } catch (error) {
@@ -82,18 +114,20 @@ const Page = () => {
     }
   }, [problem, selectedLanguage]);
 
-
   const handleRun = async () => {
     if (!problem) return;
-    
+
     setIsRunning(true);
     setExecutionResponse(null);
     try {
       const language_id = getJudge0LanguageId(selectedLanguage);
-      const testCases = problem.testCases as { input: string; output: string }[];
+      const testCases = problem.testCases as {
+        input: string;
+        output: string;
+      }[];
       const stdin = testCases.map((tc) => tc.input);
       const expected_outputs = testCases.map((tc) => tc.output);
-      
+
       const res = await executeCode({
         id: problem.id,
         source_code: code,
@@ -101,12 +135,12 @@ const Page = () => {
         stdin,
         expected_outputs,
       });
-      
+
       if (res.success) {
         toast.success("Code executed successfully");
         setExecutionResponse(res);
-        setActiveTabRight("results"); 
-        
+        setActiveTabRight("results");
+
         const submission = res.submission;
         if (submission) {
           setSubmissionHistory((prev) => [
@@ -134,9 +168,57 @@ const Page = () => {
   };
 
   const handleSubmit = async () => {
+    if (!problem) return;
 
+    setIsSubmitting(true);
+    setExecutionResponse(null);
+    try {
+      const language_id = getJudge0LanguageId(selectedLanguage);
+      const testCases = problem.testCases as {
+        input: string;
+        output: string;
+      }[];
+      const stdin = testCases.map((tc) => tc.input);
+      const expected_outputs = testCases.map((tc) => tc.output);
+
+      const res = await executeCode({
+        id: problem.id,
+        source_code: code,
+        language_id,
+        stdin,
+        expected_outputs,
+      });
+
+      if (res.success) {
+        toast.success("Solution submitted!");
+        setExecutionResponse(res);
+        setActiveTabRight("results");
+
+        const submission = res.submission;
+        if (submission) {
+          setSubmissionHistory((prev) => [
+            {
+              id: submission.id || `run-${Date.now()}`,
+              status: submission.status,
+              language: submission.language || selectedLanguage,
+              memory: submission.memory,
+              time: submission.time,
+              createdAt: submission.createdAt || new Date().toISOString(),
+            },
+            ...prev,
+          ]);
+        }
+      } else {
+        console.error("Submission failed:", res);
+        toast.error(res.message || "Submission failed");
+      }
+    } catch (error) {
+      console.error("Error submitting code:", error);
+      toast.error("Error submitting code");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
-
 
   const formatValue = (val: any): string => {
     if (typeof val === "string") {
@@ -242,7 +324,10 @@ const Page = () => {
 
       <div className="flex-1 flex overflow-hidden">
         <div className="w-1/2 flex flex-col border-r bg-card/50">
-          <div className="flex-1 flex flex-col min-h-0" style={{ height: '60%' }}>
+          <div
+            className="flex-1 flex flex-col min-h-0"
+            style={{ height: "60%" }}
+          >
             <div className="h-10 border-b flex items-center px-2 bg-muted/20 gap-1">
               <Button
                 variant="ghost"
@@ -407,7 +492,7 @@ const Page = () => {
           <div className="h-1 bg-border hover:bg-primary/50 cursor-row-resize transition-colors" />
 
           {/* Bottom Section - Submission History */}
-          <div className="flex flex-col min-h-0" style={{ height: '40%' }}>
+          <div className="flex flex-col min-h-0" style={{ height: "40%" }}>
             <div className="h-10 border-b flex items-center px-3 bg-muted/20">
               <div className="flex items-center gap-2 text-sm font-medium">
                 <Clock className="h-4 w-4 text-amber-500" />
@@ -421,7 +506,6 @@ const Page = () => {
             </div>
           </div>
         </div>
-
 
         <div className="w-1/2 flex flex-col bg-background h-full">
           {/* Tabs Header */}
@@ -516,7 +600,7 @@ const Page = () => {
                 }}
               />
             )}
-            
+
             {activeTabRight === "testcase" && (
               <ScrollArea className="h-full p-4">
                 <div className="space-y-4">
@@ -560,8 +644,12 @@ const Page = () => {
                 <div className="space-y-4">
                   {executionResponse.submission && (
                     <>
-                      <SubmissionDetails submission={executionResponse.submission} />
-                      <TestCaseTable testCases={executionResponse.submission.testCases} />
+                      <SubmissionDetails
+                        submission={executionResponse.submission}
+                      />
+                      <TestCaseTable
+                        testCases={executionResponse.submission.testCases}
+                      />
                     </>
                   )}
                 </div>

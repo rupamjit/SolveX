@@ -49,7 +49,48 @@ export const getProblemById = async (id: string) => {
     return { success: false, message: "Internal Server Error" };
   }
 };
-// execute code code 
+
+export const getUserProblemData = async (problemId: string) => {
+  try {
+    const user = await currentUser();
+    if (!user) return { success: false, message: "Not authenticated" };
+
+    const dbUser = await prisma.user.findUnique({
+      where: { clerkId: user.id },
+    });
+
+    if (!dbUser) return { success: false, message: "User not found" };
+
+    // Fetch submissions
+    const submissions = await prisma.submission.findMany({
+      where: {
+        userId: dbUser.id,
+        problemId: problemId,
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+      include: {
+        testCases: true,
+      },
+      take: 20,
+    });
+
+    const lastAccepted = submissions.find((s) => s.status === "Accepted");
+
+    return {
+      success: true,
+      submissions,
+      lastAcceptedCode: lastAccepted?.sourceCode,
+      lastAcceptedLanguage: lastAccepted?.language,
+    };
+  } catch (error) {
+    console.error("Error fetching user problem data:", error);
+    return { success: false, message: "Internal Server Error" };
+  }
+};
+
+// execute code code
 export const executeCode = async ({
   id,
   stdin,
@@ -64,26 +105,21 @@ export const executeCode = async ({
   language_id: number;
 }) => {
   try {
-    console.log("executeCode called with:", { id, language_id, stdinLength: stdin.length });
-    
     const user = await currentUser();
-    console.log("Current user:", user?.id);
 
     if (!user) {
       return { success: false, message: "User not authenticated" };
     }
 
     const dbUser = await prisma.user.findUnique({
-        where: { clerkId: user?.id }
+      where: { clerkId: user?.id },
     });
-
-    console.log("DB User:", dbUser?.id);
 
     if (!dbUser) {
       return { success: false, message: "User not found in database" };
     }
 
-     if (
+    if (
       !Array.isArray(stdin) ||
       stdin.length === 0 ||
       !Array.isArray(expected_outputs) ||
@@ -92,8 +128,6 @@ export const executeCode = async ({
       return { success: false, message: "Invalid test cases" };
     }
 
-    console.log("Preparing submissions...");
-    
     const submissions = stdin.map((input, index) => ({
       source_code,
       language_id,
@@ -101,16 +135,11 @@ export const executeCode = async ({
       expected_output: expected_outputs[index],
     }));
 
-    console.log("Submitting batch to Judge0...");
     const submitResponse = await submitBatch(submissions);
-    console.log("Submit response:", submitResponse);
-    
-    const tokens = submitResponse.map((res) => res.token);
-    console.log("Tokens:", tokens);
 
-    console.log("Polling for results...");
+    const tokens = submitResponse.map((res) => res.token);
+
     const results = await pollBatchResults(tokens);
-    console.log("Results:", results);
 
     let allPassed = true;
     const detailedResults = results.map((result, i) => {
@@ -133,14 +162,13 @@ export const executeCode = async ({
       };
     });
 
-    console.log("Creating submission in database...");
     const submission = await prisma.submission.create({
       data: {
         userId: dbUser.id,
         problemId: id,
         sourceCode: source_code,
         language: getLanguageName(language_id),
-        stdin: stdin.join('\n'),
+        stdin: stdin.join("\n"),
         stdout: JSON.stringify(detailedResults.map((r) => r.stdout)),
         stderr: detailedResults.some((r) => r.stderr)
           ? JSON.stringify(detailedResults.map((r) => r.stderr))
@@ -148,7 +176,7 @@ export const executeCode = async ({
         compileOutput: detailedResults.some((r) => r.compile_output)
           ? JSON.stringify(detailedResults.map((r) => r.compile_output))
           : null,
-        status: allPassed ? 'Accepted' : 'Wrong Answer',
+        status: allPassed ? "Accepted" : "Wrong Answer",
         memory: detailedResults.some((r) => r.memory)
           ? JSON.stringify(detailedResults.map((r) => r.memory))
           : null,
@@ -157,9 +185,7 @@ export const executeCode = async ({
           : null,
       },
     });
-    
-    console.log("Submission created:", submission.id);
-    
+
     if (allPassed) {
       const existingSolved = await prisma.problemSolved.findFirst({
         where: {
@@ -167,7 +193,7 @@ export const executeCode = async ({
           problemId: id,
         },
       });
-      
+
       if (!existingSolved) {
         await prisma.problemSolved.create({
           data: {
@@ -197,12 +223,12 @@ export const executeCode = async ({
       where: { id: submission.id },
       include: { testCases: true },
     });
-
-    console.log("Returning success with submission:", submissionWithTestCases?.id);
     return { success: true, submission: submissionWithTestCases };
-
   } catch (error) {
     console.error("executeCode error:", error);
-    return { success: false, message: error instanceof Error ? error.message : "Internal Server Error" };
+    return {
+      success: false,
+      message: error instanceof Error ? error.message : "Internal Server Error",
+    };
   }
-}
+};

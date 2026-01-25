@@ -1,7 +1,10 @@
 import "dotenv/config";
 import prisma from "../lib/prisma";
 
-const problemUpdates: Record<string, { codeSnippets: any; referenceSolution: any }> = {
+const problemUpdates: Record<
+  string,
+  { codeSnippets: any; referenceSolution: any }
+> = {
   "Climbing Stairs": {
     codeSnippets: {
       JAVASCRIPT: `/**
@@ -51,7 +54,7 @@ public class Main {
         System.out.println(sol.climbStairs(n));
         sc.close();
     }
-}`
+}`,
     },
     referenceSolution: {
       JAVASCRIPT: `function climbStairs(n) {
@@ -116,8 +119,8 @@ public class Main {
         System.out.println(sol.climbStairs(n));
         sc.close();
     }
-}`
-    }
+}`,
+    },
   },
   "Merge Two Sorted Lists": {
     codeSnippets: {
@@ -199,7 +202,7 @@ public class Main {
         }
         return arr;
     }
-}`
+}`,
     },
     referenceSolution: {
       JAVASCRIPT: `function mergeTwoLists(list1, list2) {
@@ -303,8 +306,8 @@ public class Main {
         }
         return arr;
     }
-}`
-    }
+}`,
+    },
   },
   "Reverse Linked List": {
     codeSnippets: {
@@ -374,7 +377,7 @@ public class Main {
         System.out.println(Arrays.toString(result).replace(" ", ""));
         sc.close();
     }
-}`
+}`,
     },
     referenceSolution: {
       JAVASCRIPT: `function reverseList(head) {
@@ -439,8 +442,8 @@ public class Main {
         System.out.println(Arrays.toString(result).replace(" ", ""));
         sc.close();
     }
-}`
-    }
+}`,
+    },
   },
   "Median of Two Sorted Arrays": {
     codeSnippets: {
@@ -516,7 +519,7 @@ public class Main {
         }
         return arr;
     }
-}`
+}`,
     },
     referenceSolution: {
       JAVASCRIPT: `function findMedianSortedArrays(nums1, nums2) {
@@ -599,8 +602,8 @@ public class Main {
         }
         return arr;
     }
-}`
-    }
+}`,
+    },
   },
   "Min Stack": {
     codeSnippets: {
@@ -748,7 +751,7 @@ public class Main {
         System.out.println("[null,null,null,null,-3,null,0,-2]");
         sc.close();
     }
-}`
+}`,
     },
     referenceSolution: {
       JAVASCRIPT: `class MinStack {
@@ -889,8 +892,8 @@ public class Main {
         System.out.println("[null,null,null,null,-3,null,0,-2]");
         sc.close();
     }
-}`
-    }
+}`,
+    },
   },
   "Merge k Sorted Lists": {
     codeSnippets: {
@@ -947,7 +950,7 @@ public class Main {
         System.out.println("[]");
         sc.close();
     }
-}`
+}`,
     },
     referenceSolution: {
       JAVASCRIPT: `function mergeKLists(lists) {
@@ -1008,35 +1011,35 @@ public class Main {
         System.out.println("[]");
         sc.close();
     }
-}`
-    }
-  }
+}`,
+    },
+  },
 };
 
 async function updateRemainingProblems() {
   console.log("🔄 Updating remaining problems with stdin/stdout handling...\n");
-  
+
   for (const [title, data] of Object.entries(problemUpdates)) {
     const problem = await prisma.problem.findFirst({
-      where: { title }
+      where: { title },
     });
-    
+
     if (!problem) {
       console.log(`⚠️  Problem not found: ${title}`);
       continue;
     }
-    
+
     await prisma.problem.update({
       where: { id: problem.id },
       data: {
         codeSnippets: data.codeSnippets,
-        referenceSolution: data.referenceSolution
-      }
+        referenceSolution: data.referenceSolution,
+      },
     });
-    
+
     console.log(`✅ Updated: ${title}`);
   }
-  
+
   console.log("\n🎉 All remaining problems updated successfully!");
 }
 

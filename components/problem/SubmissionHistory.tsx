@@ -1,7 +1,20 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { CheckCircle2, XCircle, Clock, Cpu, Code, Calendar } from "lucide-react";
+import {
+  CheckCircle2,
+  XCircle,
+  Clock,
+  Cpu,
+  Code,
+  Calendar,
+} from "lucide-react";
 
 interface Submission {
   id: string;
@@ -16,7 +29,9 @@ interface SubmissionHistoryProps {
   submissions?: Submission[];
 }
 
-export const SubmissionHistory = ({ submissions = [] }: SubmissionHistoryProps) => {
+export const SubmissionHistory = ({
+  submissions = [],
+}: SubmissionHistoryProps) => {
   if (!submissions.length) {
     return (
       <Card className="w-full">
@@ -29,36 +44,39 @@ export const SubmissionHistory = ({ submissions = [] }: SubmissionHistoryProps) 
   }
 
   const formatMemory = (memory: string | null): string => {
-    if (!memory) return 'N/A';
+    if (!memory) return "N/A";
     try {
       const memoryArray = JSON.parse(memory);
-      const avgMemory = memoryArray.reduce((a: number, b: string) => a + parseFloat(b), 0) / memoryArray.length;
+      const avgMemory =
+        memoryArray.reduce((a: number, b: string) => a + parseFloat(b), 0) /
+        memoryArray.length;
       return `${avgMemory.toFixed(2)} KB`;
     } catch {
-      return 'N/A';
+      return "N/A";
     }
   };
 
   const formatTime = (time: string | null): string => {
-    if (!time) return 'N/A';
+    if (!time) return "N/A";
     try {
       const timeArray = JSON.parse(time);
-      const avgTime = timeArray
-        .map((t: string) => parseFloat(t.replace(" s", "")))
-        .reduce((a: number, b: number) => a + b, 0) / timeArray.length;
+      const avgTime =
+        timeArray
+          .map((t: string) => parseFloat(t.replace(" s", "")))
+          .reduce((a: number, b: number) => a + b, 0) / timeArray.length;
       return `${avgTime.toFixed(3)} s`;
     } catch {
-      return 'N/A';
+      return "N/A";
     }
   };
 
   const formatDate = (dateString: string): string => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
+    return new Date(dateString).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
     });
   };
 
@@ -66,7 +84,9 @@ export const SubmissionHistory = ({ submissions = [] }: SubmissionHistoryProps) 
     <Card className="w-full">
       <CardHeader>
         <CardTitle>Submission History</CardTitle>
-        <CardDescription>Your previous submissions for this problem</CardDescription>
+        <CardDescription>
+          Your previous submissions for this problem
+        </CardDescription>
       </CardHeader>
       <CardContent>
         <ScrollArea className="h-[400px] pr-4">
@@ -98,22 +118,34 @@ export const SubmissionHistory = ({ submissions = [] }: SubmissionHistoryProps) 
                     <div className="flex items-center gap-2">
                       <Code className="h-4 w-4 text-muted-foreground" />
                       <div>
-                        <p className="text-xs font-medium text-muted-foreground">Language</p>
-                        <p className="text-sm font-medium">{submission.language}</p>
+                        <p className="text-xs font-medium text-muted-foreground">
+                          Language
+                        </p>
+                        <p className="text-sm font-medium">
+                          {submission.language}
+                        </p>
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
                       <Cpu className="h-4 w-4 text-muted-foreground" />
                       <div>
-                        <p className="text-xs font-medium text-muted-foreground">Memory</p>
-                        <p className="text-sm font-medium">{formatMemory(submission.memory)}</p>
+                        <p className="text-xs font-medium text-muted-foreground">
+                          Memory
+                        </p>
+                        <p className="text-sm font-medium">
+                          {formatMemory(submission.memory)}
+                        </p>
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
                       <Clock className="h-4 w-4 text-muted-foreground" />
                       <div>
-                        <p className="text-xs font-medium text-muted-foreground">Time</p>
-                        <p className="text-sm font-medium">{formatTime(submission.time)}</p>
+                        <p className="text-xs font-medium text-muted-foreground">
+                          Time
+                        </p>
+                        <p className="text-sm font-medium">
+                          {formatTime(submission.time)}
+                        </p>
                       </div>
                     </div>
                   </div>

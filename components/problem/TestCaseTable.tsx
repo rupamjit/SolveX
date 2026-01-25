@@ -1,4 +1,12 @@
-import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { CheckCircle, XCircle, AlertCircle } from "lucide-react";
 
@@ -50,13 +58,19 @@ export const TestCaseTable = ({ testCases }: TestCaseTableProps) => {
                   )}
                 </div>
               </TableCell>
-              <TableCell className="text-muted-foreground">{testCase.memory}</TableCell>
-              <TableCell className="text-muted-foreground">{testCase.time}</TableCell>
+              <TableCell className="text-muted-foreground">
+                {testCase.memory}
+              </TableCell>
+              <TableCell className="text-muted-foreground">
+                {testCase.time}
+              </TableCell>
               <TableCell className="max-w-[200px] font-mono text-sm">
                 {testCase.stderr ? (
                   <div className="text-red-500 flex items-start gap-1">
                     <AlertCircle className="h-3 w-3 mt-1 shrink-0" />
-                    <span className="whitespace-pre-wrap wrap-break-word">{testCase.stderr}</span>
+                    <span className="whitespace-pre-wrap wrap-break-word">
+                      {testCase.stderr}
+                    </span>
                   </div>
                 ) : (
                   <span className="whitespace-pre-wrap wrap-break-word text-foreground">
@@ -64,7 +78,7 @@ export const TestCaseTable = ({ testCases }: TestCaseTableProps) => {
                   </span>
                 )}
               </TableCell>
-              <TableCell className="max-w-[200px] font-mono text-sm whitespace-pre-wrap break-words text-muted-foreground">
+              <TableCell className="max-w-[200px] font-mono text-sm whitespace-pre-wrap wrap-break-word text-muted-foreground">
                 {testCase.expected}
               </TableCell>
             </TableRow>
