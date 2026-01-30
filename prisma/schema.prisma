@@ -21,6 +21,7 @@ model User {
   updatedAt     DateTime        @updatedAt
   problemSolved ProblemSolved[]
   submissions   Submission[]
+  playlists     Playlist[]
 }
 
 model Submission {
@@ -83,10 +84,11 @@ model Problem {
   codeSnippets      Json
   referenceSolution Json
 
-  createdAt     DateTime        @default(now())
-  updatedAt     DateTime        @updatedAt
-  problemSolved ProblemSolved[]
-  submissions   Submission[]
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  problemSolved    ProblemSolved[]
+  submissions      Submission[]
+  problemPlaylists ProblemPlaylist[]
 }
 
 enum Difficulty {
@@ -107,4 +109,29 @@ model ProblemSolved {
   updatedAt DateTime @updatedAt
 
   @@unique([userId, problemId])
+}
+
+model Playlist {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  userId      String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  problems ProblemPlaylist[]
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([name, userId])
+}
+
+model ProblemPlaylist {
+  id         String   @id @default(uuid())
+  playlistId String
+  problemId  String
+  createdAt  DateTime @default(now())
+
+  playlist Playlist @relation(fields: [playlistId], references: [id], onDelete: Cascade)
+  problem  Problem  @relation(fields: [problemId], references: [id], onDelete: Cascade)
 }
