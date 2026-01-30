@@ -143,7 +143,7 @@ export default async function Home() {
             10,000+ developers joined
           </Badge>
 
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-semibold max-w-5xl mx-auto py-6 bg-clip-text text-transparent bg-linear-to-b from-neutral-900 via-neutral-700 to-neutral-600 dark:from-white dark:via-neutral-200 dark:to-neutral-400">
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-semibold max-w-5xl mx-auto py-4 bg-clip-text text-transparent bg-linear-to-b from-neutral-900 via-neutral-700 to-neutral-600 dark:from-white dark:via-neutral-200 dark:to-neutral-400">
             Solve Coding Questions <br /> <Cover>Like A Pro</Cover>
           </h1>
 
@@ -348,7 +348,7 @@ export default async function Home() {
 
       {/* Testimonials */}
       <TestimonialsComponent testimonials={testimonials} />
-      
+
       <Footer />
     </div>
   );

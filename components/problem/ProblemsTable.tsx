@@ -30,6 +30,8 @@ import {
 } from "@/components/ui/table";
 import { Checkbox } from "../ui/checkbox";
 import { Badge } from "../ui/badge";
+import CreatePlaylist from "../playlists/CreatePlaylist";
+import { toast } from "sonner";
 
 interface ProblemsTableProps {
   problems:
@@ -50,6 +52,7 @@ const ProblemsTable = ({ problems, user }: ProblemsTableProps) => {
   const [difficulty, setDifficulty] = useState("ALL");
   const [selectedTag, setSelectedTag] = useState("ALL");
   const [currentPage, setCurrentPage] = useState(1);
+    const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
   const allTags = useMemo(() => {
     const tagsSet = new Set<string>();
@@ -93,6 +96,31 @@ const ProblemsTable = ({ problems, user }: ProblemsTableProps) => {
     }
   };
 
+  const handleCreatePlaylist = async (data: { name: string; description?: string }) => {
+    try {
+      const response = await fetch("/api/playlists", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: data.name,
+          description: data.description,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        setIsCreateModalOpen(false);
+        toast("Playlist created successfully");
+      } else {
+        throw new Error(result.error);
+      }
+    } catch (error) {
+      console.error("Error creating playlist:", error);
+      toast("Failed to create playlist");
+    }
+  };
+
   return (
     <div className="flex flex-col space-y-6 justify-start w-full p-6 max-w-7xl mx-auto">
       {/* Header Section */}
@@ -108,7 +136,10 @@ const ProblemsTable = ({ problems, user }: ProblemsTableProps) => {
             Manage and solve your coding challenges
           </p>
         </div>
-        <Button className="font-semibold shadow-sm">
+        <Button 
+          className="font-semibold shadow-sm"
+          onClick={() => setIsCreateModalOpen(true)}
+        >
           <Plus className="mr-2 h-4 w-4" /> Create Playlist
         </Button>
       </div>
@@ -335,6 +366,11 @@ const ProblemsTable = ({ problems, user }: ProblemsTableProps) => {
             </div>
           </div>
         )}
+        <CreatePlaylist 
+          isOpen={isCreateModalOpen} 
+          onClose={() => setIsCreateModalOpen(false)} 
+          onSubmit={handleCreatePlaylist}
+        />
       </div>
     </div>
   );
