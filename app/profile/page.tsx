@@ -1,3 +1,4 @@
+
 import ProfileStats from "@/components/profile/ProfileStats";
 import SubmissionsHistory from "@/components/profile/SubmissionHistory";
 import UserInfoCard from "@/components/profile/UserInfo";
@@ -8,6 +9,7 @@ import Link from "next/link";
 import SolvedProblems from "@/components/profile/SolvedProblems";
 import PlaylistsSection from "@/components/profile/PlaylistSection";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import CreatePlaylistDialog from "@/components/profile/CreatePlaylistDialog";
 
 const page = async () => {
   const result = await getCurrentUserData();
@@ -19,8 +21,6 @@ const page = async () => {
       </div>
     );
   }
-
-
 
   const user = result.data;
 
@@ -82,9 +82,7 @@ const page = async () => {
                                <h3 className="font-semibold text-lg">Keep organizing!</h3>
                                <p className="text-sm text-muted-foreground">Create playlists to group related problems.</p>
                            </div>
-                           <Link href="/playlists/create">
-                                <Button>Create New Playlist</Button>
-                           </Link>
+                           <CreatePlaylistDialog />
                        </div>
                     </div>
                  </div> 

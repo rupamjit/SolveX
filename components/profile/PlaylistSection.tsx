@@ -1,10 +1,10 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { List, Calendar, FileText, ChevronRight, Layers } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { List, ChevronRight, Layers } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import CreatePlaylistDialog from './CreatePlaylistDialog';
 
 interface Playlist {
   id: string;
@@ -12,7 +12,7 @@ interface Playlist {
   description: string | null;
   createdAt: string | Date;
   updatedAt: string | Date;
-  problems?: any[]; // Since we updated the query, this should be available
+  problems?: any[];
 }
 
 interface PlaylistSectionProps {
@@ -37,7 +37,7 @@ const PlaylistsSection = ({ playlists }: PlaylistSectionProps) => {
             </div>
           <h3 className="text-base font-medium mb-1">No Playlists</h3>
           <p className="text-xs text-muted-foreground mb-3">Organize problems into collections.</p>
-          <Button variant="outline" size="sm">Create Playlist</Button>
+          <CreatePlaylistDialog />
         </CardContent>
       </Card>
     );
