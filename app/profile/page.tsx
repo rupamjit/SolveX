@@ -1,4 +1,5 @@
 import ProfileStats from "@/components/profile/ProfileStats";
+import SubmissionsHistory from "@/components/profile/SubmissionHistory";
 import UserInfoCard from "@/components/profile/UserInfo";
 import { Button } from "@/components/ui/button";
 import { getCurrentUserData } from "@/modules/profile/actions/profile";
@@ -32,6 +33,7 @@ const page = async () => {
           solvedCount={user.problemSolved.length}
           playlistCount={user.playlists.length}
         />
+           <SubmissionsHistory submissions={user.submissions} />
       </div>
     </div>
   );
