@@ -20,7 +20,7 @@ const UserInfoCard = ({ userData }: UserInfoCardProps) => {
   };
 
   return (
-    <Card className="mb-8">
+    <Card>
       <CardContent className="p-8">
       <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
         <div className="relative">

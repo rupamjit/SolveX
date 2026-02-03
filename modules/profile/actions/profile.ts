@@ -12,9 +12,27 @@ export const getCurrentUserData = async () => {
                 clerkId:user?.id
             },
             include:{
-                submissions: true,
-                problemSolved: true,
-                playlists: true
+                submissions: {
+                    include: {
+                        problem: true
+                    },
+                    orderBy: {
+                        createdAt: 'desc'
+                    }
+                },
+                problemSolved: {
+                    include: {
+                        problem: true
+                    },
+                    orderBy: {
+                        createdAt: 'desc'
+                    }
+                },
+                playlists: {
+                    orderBy: {
+                        createdAt: 'desc'
+                    }
+                }
             }
         })
         return { success: true, data };
