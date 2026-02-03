@@ -32,6 +32,7 @@ import { Checkbox } from "../ui/checkbox";
 import { Badge } from "../ui/badge";
 import CreatePlaylist from "../playlists/CreatePlaylist";
 import { toast } from "sonner";
+import AddToPlaylist from "../playlists/AddToPlaylist";
 
 interface ProblemsTableProps {
   problems:
@@ -53,7 +54,9 @@ const ProblemsTable = ({ problems, user }: ProblemsTableProps) => {
   const [selectedTag, setSelectedTag] = useState("ALL");
   const [currentPage, setCurrentPage] = useState(1);
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-
+const [isAddToPlaylistModalOpen, setIsAddToPlaylistModalOpen] =
+    useState(false);
+  const [selectedProblemId, setSelectedProblemId] = useState<string | null>(null);
   const allTags = useMemo(() => {
     const tagsSet = new Set<string>();
     if (!Array.isArray(problems)) return [];
@@ -118,6 +121,29 @@ const ProblemsTable = ({ problems, user }: ProblemsTableProps) => {
     } catch (error) {
       console.error("Error creating playlist:", error);
       toast("Failed to create playlist");
+    }
+  };
+
+
+   const handleAddToPlaylist = async (problemId: string, playlistId: string) => {
+    try {
+      const response = await fetch("/api/playlists/add-problem", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ problemId, playlistId }),
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        setIsAddToPlaylistModalOpen(false);
+        toast("Problem added to playlist");
+      } else {
+        throw new Error(result.error);
+      }
+    } catch (error) {
+      console.error("Error adding to playlist:", error);
+      toast("Failed to add problem to playlist");
     }
   };
 
@@ -285,6 +311,10 @@ const ProblemsTable = ({ problems, user }: ProblemsTableProps) => {
                           variant="ghost"
                           size="sm"
                           className="h-8 px-2 text-muted-foreground hover:text-primary"
+                          onClick={() => {
+                            setSelectedProblemId(problem.id);
+                            setIsAddToPlaylistModalOpen(true);
+                          }}
                         >
                           <Save className="h-4 w-4 mr-1.5" />
                           Save
@@ -371,6 +401,12 @@ const ProblemsTable = ({ problems, user }: ProblemsTableProps) => {
           onClose={() => setIsCreateModalOpen(false)} 
           onSubmit={handleCreatePlaylist}
         />
+        <AddToPlaylist
+        isOpen={isAddToPlaylistModalOpen}
+        onClose={() => setIsAddToPlaylistModalOpen(false)}
+        onSubmit={handleAddToPlaylist}
+        onCreatePlaylist={() => setIsCreateModalOpen(true)}
+        problemId={selectedProblemId}/>
       </div>
     </div>
   );

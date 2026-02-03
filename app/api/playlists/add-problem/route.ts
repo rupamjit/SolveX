@@ -2,7 +2,7 @@ import prisma from "@/lib/prisma";
 import { currentUser } from "@clerk/nextjs/server";
 import { NextRequest, NextResponse } from "next/server";
 
-const POST = async (req: NextRequest) => {
+export const POST = async (req: NextRequest) => {
   try {
     const user = await currentUser();
 

@@ -75,7 +75,7 @@ export const GET = async (req: NextRequest) => {
 
     const playlists = await prisma.playlist.findMany({
       where: {
-        userId: user.id,
+        userId: dbUser.id,
       },
       include: {
         problems: {
