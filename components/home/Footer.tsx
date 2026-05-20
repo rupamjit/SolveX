@@ -12,11 +12,11 @@ const Footer = () => {
           <div className="flex flex-col gap-6">
             <Link href="/" className="flex items-center group">
               <div className="relative h-10 w-32 transition-transform duration-300 group-hover:scale-105">
-                <Image 
-                  src="/solveX.svg" 
+                <Image
+                  src="/solveX.svg"
                   fill
-                  className="object-contain" 
-                  alt="SolveX" 
+                  className="object-contain"
+                  alt="SolveX"
                 />
               </div>
             </Link>
@@ -74,9 +74,9 @@ const Footer = () => {
               Get the latest technical interview tips directly in your inbox.
             </p>
             <div className="relative group">
-              <input 
-                type="email" 
-                placeholder="engineering@firm.com" 
+              <input
+                type="email"
+                placeholder="engineering@firm.com"
                 className="w-full bg-gray-50 dark:bg-neutral-900 border border-gray-200 dark:border-neutral-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500/50 transition-all"
               />
               <button className="absolute right-2 top-2 p-1.5 rounded-lg bg-gray-900 dark:bg-white text-white dark:text-black hover:bg-neutral-800 dark:hover:bg-neutral-100 transition-colors">
@@ -92,9 +92,6 @@ const Footer = () => {
             © {new Date().getFullYear()} SolveX Inc. All rights reserved.
           </div>
           <div className="flex items-center gap-8 text-xs text-gray-500 dark:text-gray-400 antialiased">
-          <a href="mailto:rupamjit2003@gmail.com" className="hover:underline">
-  Contact: rupamjit2003@gmail.com
-</a>
             <Link href="#" className="hover:text-amber-600 dark:hover:text-amber-500 transition-colors">Privacy Policy</Link>
             <Link href="#" className="hover:text-amber-600 dark:hover:text-amber-500 transition-colors">Terms of Service</Link>
             <Link href="#" className="hover:text-amber-600 dark:hover:text-amber-500 transition-colors">Cookie Policy</Link>
