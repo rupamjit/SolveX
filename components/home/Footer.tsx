@@ -92,6 +92,9 @@ const Footer = () => {
             © {new Date().getFullYear()} SolveX Inc. All rights reserved.
           </div>
           <div className="flex items-center gap-8 text-xs text-gray-500 dark:text-gray-400 antialiased">
+          <a href="mailto:rupamjit2003@gmail.com" className="hover:underline">
+  Contact: rupamjit2003@gmail.com
+</a>
             <Link href="#" className="hover:text-amber-600 dark:hover:text-amber-500 transition-colors">Privacy Policy</Link>
             <Link href="#" className="hover:text-amber-600 dark:hover:text-amber-500 transition-colors">Terms of Service</Link>
             <Link href="#" className="hover:text-amber-600 dark:hover:text-amber-500 transition-colors">Cookie Policy</Link>

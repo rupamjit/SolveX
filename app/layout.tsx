@@ -32,6 +32,9 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+        <p style={{display:'none'}}>
+        Impact-Site-Verification: 4bc3cbfa-f484-4312-97ff-535ffc302913
+      </p>
         {children}
       </body>
     </html>
