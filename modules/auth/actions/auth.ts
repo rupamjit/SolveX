@@ -76,11 +76,34 @@ export const getCurrentUserData = async () => {
       };
     }
     const { id } = user;
-    const userData = await prisma.user.findFirst({
+    let userData = await prisma.user.findFirst({
       where: {
         clerkId: id,
       },
     });
+
+    if (!userData) {
+      const { firstName, lastName, emailAddresses, imageUrl } = user;
+      userData = await prisma.user.upsert({
+        where: {
+          clerkId: id,
+        },
+        update: {
+          firstName,
+          lastName,
+          imageUrl,
+          email: emailAddresses[0]?.emailAddress,
+        },
+        create: {
+          clerkId: id,
+          firstName,
+          lastName,
+          imageUrl,
+          email: emailAddresses[0]?.emailAddress,
+        },
+      });
+    }
+
     return {
       success: true,
       user: userData,
